@@ -91,12 +91,7 @@ app.layout = html.Div([
         dcc.Graph(
             id='diveces-pie'
         )
-    ], style={"columnCount": 2}),
-    html.Div([
-    html.H3('Total Visits by Device Percentage', style={"textAlign": "center"}),
-    dcc.Graph(id='kpi-graph')
-], style={"columnCount": 1})
-
+    ], style={"columnCount": 2})
 ])
 
 
@@ -109,7 +104,6 @@ app.layout = html.Div([
     Output('total-visit-social-networks-line', 'figure'),
     Output('world-map', 'figure'),
     Output('diveces-pie', 'figure'),
-    Output('kpi-graph', 'figure'),
     Input('date-picker-range', 'start_date'),
     Input('date-picker-range', 'end_date'),
     Input('social-networks-dropdown', 'value'),
@@ -244,45 +238,7 @@ def update_figures(start_date_selected, end_date_selected, social_networks_selec
         }
     )
 
-########################### PARTE NUEVA MIA
-    total = len(df)
-
-    df_by_month_social_networks_percentage = (
-    df
-    .loc[(df.social_network.isin(social_networks_selected)) &
-         (df.device.isin(devices_selected)) &
-         (df.datetime >= start_date_selected) &
-         (df.datetime <= end_date_selected)]
-    .groupby(['year', 'month', 'social_network'])
-    .count()
-    .name
-    .reset_index()
-    .assign(
-        year_month=lambda df: df.year+'-'+df.month
-    )
-    .merge(
-        pd.DataFrame({'total': [total]}),  # Crea un DataFrame con una columna 'total' con el valor total
-        how='cross'  # Realiza un producto cruzado para unir cada fila de df_by_month_social_networks_percentage con el DataFrame de 'total'
-    )
-    .assign(
-        percentage=lambda df: df.name / df.total  # Calcula la columna 'percentage' dividiendo 'name' entre 'total'
-    )
-)
-
-
-    kpi_graph = px.line(
-        df_by_month_social_networks,
-        x="year_month",
-        y="percentage",
-        color="social_network",
-        labels={
-            "percentage": "Total Visits %",  "year_month": "Month"
-        }
-    )
-
-
-
-    return total_visit, facebook_visit, instagram_visit, twitter_visit, total_visit_fig, total_visit_social_network_fig, world_map_fig, devices_pie_fig,kpi_graph
+    return total_visit, facebook_visit, instagram_visit, twitter_visit, total_visit_fig, total_visit_social_network_fig, world_map_fig, devices_pie_fig
 
 
 if __name__ == '__main__':
